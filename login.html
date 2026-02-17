@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocabAI</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --deep-red: #9A0A13;
+            --gold-light: #F2CE84;
+            --cream: #FAF0D5;
+            --amber: #E69739;
+            --dark-red: #711000;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: var(--cream);
+            color: var(--dark-red);
+            scroll-behavior: smooth;
+        }
+
+        /* D-Shape Logo Background */
+        .logo-d-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 180px;
+            height: 100px;
+            background: var(--gold-light);
+            border-bottom-right-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 0 15px rgba(113, 16, 0, 0.1);
+            z-index: 50;
+        }
+
+        .header-nav {
+            background: rgba(113, 16, 0, 0.95);
+            backdrop-filter: blur(10px);
+            height: 80px;
+            padding-left: 180px; 
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--deep-red), var(--dark-red));
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(154, 10, 19, 0.3);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(242, 206, 132, 0.3);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px -12px rgba(113, 16, 0, 0.15);
+        }
+
+        .modal-glass {
+            background: rgba(250, 240, 213, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(242, 206, 132, 0.8);
+        }
+
+        .shape-blob {
+            background: var(--gold-light);
+            filter: blur(80px);
+            position: absolute;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 8px;
+            min-width: 140px;
+            margin-top: 8px;
+        }
+
+        .lang-dropdown.show { display: block; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--cream); }
+        ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 10px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        #featureImageModal.hidden { display: none; }
+
+        /* Experience Account Card Effects */
+        .account-preview-card {
+            background: linear-gradient(145deg, #ffffff, #FAF0D5);
+            border: 2px solid #F2CE84;
+            transition: all 0.5s ease;
+        }
+        
+        .account-preview-card:hover {
+            border-color: #9A0A13;
+            box-shadow: 0 20px 40px rgba(154, 10, 19, 0.1);
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #9A0A13, #E69739);
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        /* Toast notifications */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: var(--dark-red);
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            font-size: 14px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* --- NEW STYLES FOR LOGIN/REGISTER --- */
+        .social-btn {
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+        .social-btn:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        .form-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #711000;
+            opacity: 0.5;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 1.5rem 0;
+        }
+        .form-divider::before, .form-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #711000;
+        }
+        .form-divider::before { margin-right: .5em; }
+        .form-divider::after { margin-left: .5em; }
+
+        .auth-switch-link {
+            color: var(--deep-red);
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s;
+        }
+        .auth-switch-link:hover {
+            color: var(--amber);
+        }
+        
+        /* Fade animation for switching forms */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden-form { display: none; }
+
+        /* --- ADDED: TRANSITION OVERLAY STYLES --- */
+        #transition-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(250, 240, 213, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #transition-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .loading-logo {
+            width: 120px;
+            animation: pulse-logo 1.5s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: #F2CE84;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 30%;
+            background: #9A0A13;
+            animation: loading-slide 1s infinite linear;
+            border-radius: 4px;
+        }
+        @keyframes pulse-logo {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes loading-slide {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("sg8KjDXGvjBy9Sq4b");
+       })();
+    </script>
+</head>
+<body class="overflow-x-hidden">
+
+    <div id="transition-overlay">
+        <img src="logo.png" alt="Loading" class="loading-logo">
+        <div class="loading-bar"></div>
+        <p style="margin-top: 15px; font-weight: 700; color: #711000; font-size: 0.9rem; letter-spacing: 1px;">ĐANG VÀO HỆ THỐNG...</p>
+    </div>
+
+    <div id="toast">Thông báo</div>
+
+    <header class="fixed top-0 w-full z-40 transition-all duration-300" id="mainHeader">
+        <div class="logo-d-shape">
+            <div class="flex items-center gap-2">
+                <img src="logo.png" alt="Vocab AI Logo" class="w-36 md:w-38">
+            </div>
+        </div>
+        
+        <nav class="header-nav flex items-center px-10">
+            <div class="hidden md:flex flex-1 justify-center gap-10">
+                <a href="#about" data-i18n="nav_about" class="text-white/80 hover:text-gold-light font-bold text-sm transition-all hover:scale-105">Giới thiệu</a>
+                <a href="#features" data-i18n="nav_features" class="text-white/80 hover:text-gold-light font-bold text-sm transition-all hover:scale-105">Tính năng</a>
+                <a href="#team" data-i18n="nav_team" class="text-white/80 hover:text-gold-light font-bold text-sm transition-all hover:scale-105">Đội ngũ</a>
+                <a href="#experience" data-i18n="nav_experience" class="text-white/80 hover:text-gold-light font-bold text-sm transition-all hover:scale-105">Trải nghiệm</a>
+                <a href="#testimonials" data-i18n="nav_feedback" class="text-white/80 hover:text-gold-light font-bold text-sm transition-all hover:scale-105">Feedback</a>
+            </div>
+
+            <div class="flex items-center gap-4 ml-auto">
+                <div class="relative">
+                    <button id="langBtn" class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 cursor-pointer hover:bg-white/20 transition-all text-white">
+                        <img id="currentFlag" src="https://flagcdn.com/vn.svg" class="w-5 h-3.5 object-cover rounded-sm" alt="VN">
+                        <span id="currentLangLabel" class="text-xs font-bold">VN</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                    </button>
+                    <div id="langMenu" class="lang-dropdown">
+                        <button onclick="changeLanguage('vi')" class="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <img src="https://flagcdn.com/vn.svg" class="w-4 h-3 object-cover rounded-sm">
+                            <span class="text-xs font-bold text-gray-700">Tiếng Việt</span>
+                        </button>
+                        <button onclick="changeLanguage('en')" class="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <img src="https://flagcdn.com/us.svg" class="w-4 h-3 object-cover rounded-sm">
+                            <span class="text-xs font-bold text-gray-700">English</span>
+                        </button>
+                    </div>
+                </div>
+                <button id="openLoginBtn" data-i18n="btn_login" class="bg-[#F2CE84] text-[#711000] px-6 py-2.5 rounded-full text-sm font-extrabold hover:bg-white transition-all shadow-lg uppercase">
+                    ĐĂNG NHẬP
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="relative min-h-screen pt-32 flex items-center overflow-hidden">
+        <div class="shape-blob w-96 h-96 top-0 -left-20"></div>
+        <div class="shape-blob w-[500px] h-[500px] bottom-0 -right-20" style="background: var(--amber)"></div>
+
+        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 bg-[#9A0A13]/10 px-4 py-2 rounded-full border border-[#9A0A13]/20">
+                    <span class="w-2 h-2 bg-[#9A0A13] rounded-full animate-pulse"></span>
+                    <span data-i18n="hero_badge" class="text-xs font-black text-[#9A0A13] uppercase tracking-widest">Kỷ nguyên học tập mới</span>
+                </div>
+                <h1 class="text-6xl lg:text-7xl font-black leading-tight text-[#711000]">
+                    <span data-i18n="hero_title_1">Học từ vựng</span> <br>
+                    <span data-i18n="hero_title_2" class="text-[#9A0A13] italic underline decoration-[#F2CE84]">Thông minh</span> <br>
+                    <span data-i18n="hero_title_3">hơn cùng AI.</span>
+                </h1>
+                <p data-i18n="hero_desc" class="text-lg text-gray-600 max-w-lg leading-relaxed">
+                    VocabAI không chỉ là một từ điển. Đó là trợ lý học tập cá nhân giúp bạn tra cứu, ghi nhớ và làm chủ ngôn ngữ thông qua lộ trình được tối ưu hóa bởi trí tuệ nhân tạo.
+                </p>
+                <div class="flex items-center gap-6 pt-4">
+                    <div class="flex -space-x-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Justin" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+                        <div class="w-10 h-10 rounded-full border-2 border-white bg-amber-400 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">+2k</div>
+                    </div>
+                    <p class="text-xs font-medium text-gray-500"><span data-i18n="trusted_by">Đã được tin dùng bởi hơn</span> <span class="text-dark-red font-bold">50+ sinh viên</span></p>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="animate-float">
+                    <div class="bg-white p-6 rounded-[40px] shadow-2xl border border-cream transform rotate-3 relative z-10">
+                        <img src="1,2,2.png" class="rounded-[30px] w-full object-cover" alt="Study">
+                        <div class="absolute -bottom-6 -left-6 bg-[#9A0A13] p-6 rounded-3xl shadow-xl text-white transform -rotate-6">
+                            <p class="text-3xl font-black">98%</p>
+                            <p data-i18n="retention_rate" class="text-[10px] font-bold uppercase opacity-80">Tỉ lệ ghi nhớ</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-2 border-[#F2CE84]/30 rounded-full -z-10"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] border border-[#E69739]/10 rounded-full -z-10"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 bg-white">
+        <div class="container mx-auto px-6 text-center space-y-4">
+            <h2 data-i18n="about_title" class="text-4xl font-black text-[#711000] flex items-center justify-center gap-2 flex-wrap text-center">
+  Tại sao chọn 
+  <img src="logo.png" alt="Vocab AI Logo" class="h-9 w-auto md:h-10 object-contain"> 
+  ?
+</h2>
+            <p data-i18n="about_desc" class="text-gray-500 max-w-2xl mx-auto">Chúng tôi kết hợp phương pháp ghi nhớ khoa học (Spaced Repetition) với sức mạnh của Trí tuệ nhân tạo để tạo ra một hệ sinh thái học tập hoàn hảo.</p>
+            
+            <div class="grid md:grid-cols-3 gap-8 mt-16">
+                <div class="p-8 space-y-4">
+                    <div class="w-16 h-16 bg-[#FAF0D5] rounded-2xl flex items-center justify-center mx-auto text-[#E69739]">
+                        <i data-lucide="zap" class="w-8 h-8"></i>
+                    </div>
+                    <h3 data-i18n="about_item_1_title" class="font-bold text-xl">Tra cứu tức thì</h3>
+                    <p data-i18n="about_item_1_desc" class="text-sm text-gray-500">Tìm kiếm từ vựng với đầy đủ phiên âm, ví dụ và ngữ cảnh chỉ trong một nốt nhạc.</p>
+                </div>
+                <div class="p-8 space-y-4">
+                    <div class="w-16 h-16 bg-[#F2CE84]/20 rounded-2xl flex items-center justify-center mx-auto text-[#9A0A13]">
+                        <i data-lucide="shield-check" class="w-8 h-8"></i>
+                    </div>
+                    <h3 data-i18n="about_item_2_title" class="font-bold text-xl">Ghi nhớ bền vững</h3>
+                    <p data-i18n="about_item_2_desc" class="text-sm text-gray-500">Hệ thống nhắc lại thông minh giúp bạn không bao giờ quên những gì đã học.</p>
+                </div>
+                <div class="p-8 space-y-4">
+                    <div class="w-16 h-16 bg-[#E69739]/10 rounded-2xl flex items-center justify-center mx-auto text-[#711000]">
+                        <i data-lucide="users" class="w-8 h-8"></i>
+                    </div>
+                    <h3 data-i18n="about_item_3_title" class="font-bold text-xl">Cộng đồng sôi động</h3>
+                    <p data-i18n="about_item_3_desc" class="text-sm text-gray-500">Chia sẻ bộ từ vựng và cùng nhau chinh phục các thử thách học tập hàng ngày.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-24 bg-[#FAF0D5]">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+                <div class="space-y-4">
+                    <span data-i18n="features_badge" class="text-sm font-bold text-[#E69739] uppercase tracking-widest">Hệ sinh thái</span>
+                    <h2 data-i18n="features_title" class="text-4xl font-black text-[#711000]">Tính năng vượt trội</h2>
+                </div>
+                <p data-i18n="features_desc" class="text-gray-500 max-w-md">Khám phá bộ công cụ mạnh mẽ được thiết kế để tối ưu hóa việc học ngôn ngữ của bạn mỗi ngày.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="feature-card p-8 group">
+                    <div class="w-14 h-14 bg-[#9A0A13] text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-200"><i data-lucide="search" class="w-6 h-6"></i></div>
+                    <h4 data-i18n="feat_1_title" class="text-xl font-bold mb-4">AI Lookup</h4>
+                    <p data-i18n="feat_1_desc" class="text-sm text-gray-500 leading-relaxed mb-6">Tra từ tự động bằng AI, gợi ý nghĩa sát thực tế và các cụm từ liên quan.</p>
+                    <button onclick="showFeaturePreview('lookup')" data-i18n="btn_explore" class="text-sm font-black text-[#9A0A13] flex items-center gap-2 group-hover:gap-4 transition-all uppercase">KHÁM PHÁ <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </div>
+                <div class="feature-card p-8 group">
+                    <div class="w-14 h-14 bg-[#E69739] text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-200"><i data-lucide="library" class="w-6 h-6"></i></div>
+                    <h4 data-i18n="feat_2_title" class="text-xl font-bold mb-4">Smart Library</h4>
+                    <p data-i18n="feat_2_desc" class="text-sm text-gray-500 leading-relaxed mb-6">Quản lý kho từ vựng cá nhân theo chủ đề, đồng bộ hóa trên mọi thiết bị.</p>
+                    <button onclick="showFeaturePreview('library')" data-i18n="btn_explore" class="text-sm font-black text-[#E69739] flex items-center gap-2 group-hover:gap-4 transition-all uppercase">KHÁM PHÁ <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </div>
+                <div class="feature-card p-8 group">
+                    <div class="w-14 h-14 bg-[#711000] text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-gray-300"><i data-lucide="bar-chart-3" class="w-6 h-6"></i></div>
+                    <h4 data-i18n="feat_3_title" class="text-xl font-bold mb-4">Visual Stats</h4>
+                    <p data-i18n="feat_3_desc" class="text-sm text-gray-500 leading-relaxed mb-6">Thống kê chi tiết tiến độ học tập qua biểu đồ nhiệt và hệ thống huy hiệu.</p>
+                    <button onclick="showFeaturePreview('stats')" data-i18n="btn_explore" class="text-sm font-black text-[#711000] flex items-center gap-2 group-hover:gap-4 transition-all uppercase">KHÁM PHÁ <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </div>
+                <div class="feature-card p-8 group">
+                    <div class="w-14 h-14 bg-[#F2CE84] text-[#711000] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-yellow-200"><i data-lucide="message-square" class="w-6 h-6"></i></div>
+                    <h4 data-i18n="feat_4_title" class="text-xl font-bold mb-4">Community</h4>
+                    <p data-i18n="feat_4_desc" class="text-sm text-gray-500 leading-relaxed mb-6">Tham gia thảo luận, hỏi đáp AI và tham gia các nhóm học tập sôi động.</p>
+                    <button onclick="showFeaturePreview('community')" data-i18n="btn_explore" class="text-sm font-black text-[#E69739] flex items-center gap-2 group-hover:gap-4 transition-all uppercase">KHÁM PHÁ <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="team" class="py-24 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 data-i18n="team_title" class="text-4xl font-black text-[#711000] mb-16 flex items-center justify-center gap-3 flex-wrap text-center">
+  Thành viên sáng lập 
+  <img src="logo.png" alt="Vocab AI Logo" class="h-10 w-auto md:h-12 object-contain">
+</h2>
+            <div class="flex flex-wrap justify-center gap-12 lg:gap-20">
+                <div class="space-y-4 w-64">
+                    <div class="relative group">
+                        <img src="1,2.png" class="w-40 h-40 mx-auto rounded-full bg-[#FAF0D5] border-4 border-[#F2CE84] transition-all group-hover:scale-105" alt="Founder">
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#9A0A13] text-white px-4 py-1 rounded-full text-[10px] font-bold">01</div>
+                    </div>
+                    <h5 class="text-lg font-bold">LƯƠNG ĐỨC DÂN</h5>
+                    <div class="space-y-1">
+                        <p data-i18n="univ_1" class="text-[11px] text-gray-400 font-medium">Đại học Ngoại Ngữ - Tin Học Tp.Hồ Chí Minh (HUFLIT)</p>
+                        <p class="text-xs text-[#9A0A13] uppercase tracking-widest font-extrabold">25DH711067</p>
+                    </div>
+                </div>
+                <div class="space-y-4 w-64">
+                    <div class="relative group">
+                        <img src="1,2.png" class="w-40 h-40 mx-auto rounded-full bg-[#FAF0D5] border-4 border-[#F2CE84] transition-all group-hover:scale-105" alt="Lead Designer">
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#E69739] text-white px-4 py-1 rounded-full text-[10px] font-bold">02</div>
+                    </div>
+                    <h5 class="text-lg font-bold">NGUYỄN THỊ MỸ DUYÊN</h5>
+                    <div class="space-y-1">
+                        <p data-i18n="univ_2" class="text-[11px] text-gray-400 font-medium">Đại học Ngoại Ngữ - Tin Học Tp.Hồ Chí Minh (HUFLIT)</p>
+                        <p class="text-xs text-[#E69739] uppercase tracking-widest font-extrabold">25DH711096</p>
+                    </div>
+                </div>
+                
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience" class="py-24 bg-[#FAF0D5]/50 relative overflow-hidden">
+        <div class="shape-blob w-72 h-72 top-20 right-10 opacity-20"></div>
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto bg-white rounded-[50px] shadow-2xl border border-[#F2CE84]/50 overflow-hidden flex flex-col md:flex-row">
+                <div class="md:w-1/2 p-8 lg:p-12 bg-gradient-to-br from-[#FAF0D5] to-white border-r border-[#F2CE84]/20">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-[#9A0A13] shadow-lg">
+                            <img src="1,2.png" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-black text-xl text-[#711000]">User_Experience</h4>
+                            <span class="inline-block px-3 py-1 bg-[#F2CE84] text-[#711000] text-[10px] font-black rounded-full uppercase tracking-tighter">Trial Account</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="p-5 bg-white rounded-2xl shadow-sm border border-[#F2CE84]/30">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xs font-bold text-gray-400 uppercase">Daily Goal</span>
+                                <span class="text-sm font-black text-[#9A0A13]">12/20 Words</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="progress-bar-fill w-[60%]"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-5 bg-white rounded-2xl shadow-sm border border-[#F2CE84]/30 text-center">
+                                <i data-lucide="flame" class="w-6 h-6 text-[#E69739] mx-auto mb-1"></i>
+                                <p class="text-lg font-black text-[#711000]">7 Days</p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">Streak</p>
+                            </div>
+                            <div class="p-5 bg-white rounded-2xl shadow-sm border border-[#F2CE84]/30 text-center">
+                                <i data-lucide="award" class="w-6 h-6 text-[#9A0A13] mx-auto mb-1"></i>
+                                <p class="text-lg font-black text-[#711000]">Level 5</p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">Rank</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-[#711000]/5 rounded-xl border-l-4 border-[#9A0A13]">
+                            <i data-lucide="info" class="w-10 h-10 text-[#9A0A13]"></i>
+                            <p class="text-xs font-medium text-gray-600">Đây là <span class="font-black text-[#9A0A13]">phiên bản trải nghiệm</span> nên còn thiếu sót rất mong nhận được <span class="font-black text-[#9A0A13]">góp ý cải thiện</span> từ mọi người để web ngày càng xịn xò hơn</p>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-[#711000]/5 rounded-xl border-l-4 border-[#9A0A13]">
+                            <i data-lucide="info" class="w-10 h-10 text-[#9A0A13]"></i>
+                            <p class="text-xs font-medium text-gray-600"> <span class="font-black text-[#9A0A13]">Tài khoản trải nghiệm</span> được cung cấp để phục vụ việc <span class="font-black text-[#9A0A13]">trải nghiệm và đánh giá</span> cho đến giai đoạn cuối của dự án. Sau giai đoạn này sẽ có những sự thay đổi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:w-1/2 p-8 lg:p-12 flex flex-col justify-center space-y-8">
+                    <div class="space-y-4">
+                        <h2 data-i18n="exp_title" class="text-3xl lg:text-4xl font-black text-[#711000] leading-tight">Giao diện học tập <br><span class="text-[#9A0A13]">Trẻ trung & Tinh tế</span></h2>
+                        <p data-i18n="exp_desc" class="text-gray-500 text-sm leading-relaxed">Đăng nhập tài khoản trải nghiệm để khám phá hệ thống dashboard cá nhân hóa, nơi mọi tiến trình học tập đều được AI ghi lại và tối ưu hóa theo cách riêng của bạn.</p>
+                        
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#F2CE84]/30 flex items-center justify-center text-[#E69739]"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                            <p class="text-sm font-bold text-[#711000]">Tùy biến Widget Dashboard</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#F2CE84]/30 flex items-center justify-center text-[#E69739]"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                            <p class="text-sm font-bold text-[#711000]">Hệ thống Gamification sôi động</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button id="ctaExperience" class="btn-gradient w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3">
+                            BẮT ĐẦU TRẢI NGHIỆM NGAY <i data-lucide="rocket" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="py-24 bg-[#711000] relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-[#9A0A13] rounded-full blur-[120px] opacity-30"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 data-i18n="feedback_title" class="text-4xl font-black text-[#F2CE84] text-center mb-16 italic">Feedback của người dùng</h2>
+            <div id="testimonialContainer" class="grid md:grid-cols-3 gap-8">
+                <!-- Feedbacks will be loaded here from Firestore -->
+                <div class="col-span-3 text-center text-white/50 text-sm italic">Đang tải feedback...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white pt-24 pb-12 border-t border-[#F2CE84]/30">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                <div class="md:col-span-3 space-y-6">
+                    <div class="flex items-center gap-2">
+                        <img src="logo.png" alt="Vocab AI Logo" class="w-36 md:w-38">
+                    </div>
+                    <p data-i18n="footer_brand_desc" class="text-sm text-gray-500 leading-relaxed">Nền tảng học tập thông minh dựa trên AI giúp tối ưu hóa việc tiếp thu kiến thức mới.</p>
+                    <p data-i18n="footer_brand_desc" class="text-sm text-gray-500 leading-relaxed"><b>VocabAI</b> là dự án do nhóm sinh viên trường <b>Đại học Ngoại Ngữ - Tin Học Tp.Hồ Chí Minh (HUFLIT)</b> xây dựng và phát triển với mục tiêu ứng dụng trí tuệ nhân tạo (AI) để cá nhân hóa lộ trình học từ vựng. Hệ thống sử dụng các thuật toán thông minh để phân tích trình độ và thói quen của người dùng, từ đó đề xuất các bài tập và phương pháp ghi nhớ tối ưu, giúp rút ngắn thời gian làm chủ ngôn ngữ.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-[#FAF0D5] flex items-center justify-center text-[#711000] hover:bg-[#9A0A13] hover:text-white transition-all"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-[#FAF0D5] flex items-center justify-center text-[#711000] hover:bg-[#9A0A13] hover:text-white transition-all"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-[#FAF0D5] flex items-center justify-center text-[#711000] hover:bg-[#9A0A13] hover:text-white transition-all"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <h6 data-i18n="footer_links_title" class="font-bold mb-6 text-dark-red uppercase text-xs tracking-widest">Liên kết</h6>
+                    <ul class="space-y-4 text-sm text-gray-500 font-medium">
+                        <li><a href="#about" data-i18n="nav_about" class="hover:text-deep-red transition-colors">Về chúng tôi</a></li>
+                        <li><a href="#features" data-i18n="nav_features" class="hover:text-deep-red transition-colors">Tính năng mới</a></li>
+                    </ul>
+                </div>
+
+                <div class="md:col-span-7">
+                    <h6 data-i18n="contact_form_title" class="font-bold mb-6 text-dark-red uppercase text-xs tracking-widest">Liên hệ với chúng tôi</h6>
+                    <form id="contactForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label data-i18n="label_name" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Họ và tên</label>
+                                <input type="text" id="contactName" data-i18n-placeholder="placeholder_name" placeholder="Nguyễn Văn A" class="w-full px-4 py-3 bg-[#FAF0D5]/30 border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9A0A13] transition-all" required>
+                            </div>
+                            <div class="space-y-1">
+                                <label data-i18n="label_phone" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Số điện thoại</label>
+                                <input type="tel" id="contactPhone" data-i18n-placeholder="placeholder_phone" placeholder="0901 234 567" class="w-full px-4 py-3 bg-[#FAF0D5]/30 border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9A0A13] transition-all" required>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <label data-i18n="label_email" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Địa chỉ Email</label>
+                                <input type="email" id="contactEmail" data-i18n-placeholder="placeholder_email" placeholder="email@vocab.ai" class="w-full px-4 py-3 bg-[#FAF0D5]/30 border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9A0A13] transition-all" required>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label data-i18n="label_msg" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Lời nhắn</label>
+                            <textarea id="contactMsg" data-i18n-placeholder="placeholder_msg" placeholder="Bạn cần hỗ trợ điều gì?" rows="3" class="w-full px-4 py-3 bg-[#FAF0D5]/30 border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9A0A13] transition-all resize-none"></textarea>
+                        </div>
+                        <button type="submit" id="sendMsgBtn" class="bg-[#9A0A13] text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#711000] transition-all shadow-lg flex items-center gap-2">
+                            <span data-i18n="btn_send">Gửi tin nhắn</span> <i data-lucide="send" class="w-3 h-3"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400">
+                <p class="text-[11px] font-bold uppercase tracking-widest">© 2025 VocabAI Project.</p>
+                
+            </div>
+        </div>
+    </footer>
+
+    <div id="featureImageModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
+        <div class="bg-white rounded-[40px] w-full max-w-4xl overflow-hidden shadow-2xl relative">
+            <button onclick="closeFeaturePreview()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-black/10 flex items-center justify-center text-dark-red hover:bg-black/20 transition-all z-10">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="grid md:grid-cols-2">
+                <div class="h-[300px] md:h-full">
+                    <img id="featurePreviewImage" src="" class="w-full h-full object-cover" alt="Preview">
+                </div>
+                <div class="p-12 flex flex-col justify-center space-y-6">
+                    <h3 id="featurePreviewTitle" class="text-3xl font-black text-dark-red"></h3>
+                    <p id="featurePreviewDesc" class="text-gray-500 leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-[#711000]/60 backdrop-blur-sm">
+        <div class="modal-glass w-full max-w-md rounded-[40px] shadow-2xl p-8 relative overflow-hidden flex flex-col max-h-[90vh] overflow-y-auto">
+            <button id="closeLoginBtn" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-dark-red hover:bg-white transition-all z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            
+            <div id="loginFormContainer" class="fade-in space-y-6">
+                <div class="text-center space-y-3">
+                    <div class="w-14 h-14 bg-[#9A0A13] text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl"><i data-lucide="lock" class="w-7 h-7"></i></div>
+                    <h3 data-i18n="login_welcome" class="text-2xl font-black text-dark-red">Chào mừng trở lại!</h3>
+                    <p data-i18n="login_sub" class="text-xs text-gray-500 italic">Đăng nhập để tiếp tục hành trình.</p>
+                </div>
+
+                <form id="loginForm" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label data-i18n="label_email" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Email</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="email" id="loginEmail" placeholder="xxxxx@vocab.ai" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between">
+                            <label data-i18n="label_pass" class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Mật khẩu</label>
+                            <a href="#" data-i18n="forgot_pass" class="text-[9px] font-black text-[#9A0A13] hover:underline uppercase tracking-widest">Quên mật khẩu?</a>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="key-round" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="password" id="loginPass" placeholder="••••••••" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitLoginBtn" data-i18n="btn_login_submit" class="w-full btn-gradient py-3.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg">Đăng nhập ngay</button>
+                </form>
+
+                <div class="form-divider">Hoặc tiếp tục với</div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="handleSocialLogin('google')" class="social-btn flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-gray-700 text-xs font-bold shadow-sm">
+                        <i class="fab fa-google text-red-500 text-base"></i> Google
+                    </button>
+                    <button onclick="handleSocialLogin('facebook')" class="social-btn flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-gray-700 text-xs font-bold shadow-sm">
+                        <i class="fab fa-facebook text-blue-600 text-base"></i> Facebook
+                    </button>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-xs text-gray-500 font-medium">Chưa có tài khoản? <span onclick="switchToRegister()" class="auth-switch-link">Đăng ký ngay</span></p>
+                </div>
+            </div>
+
+            <div id="registerFormContainer" class="fade-in space-y-5 hidden-form">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 bg-[#E69739] text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl"><i data-lucide="user-plus" class="w-7 h-7"></i></div>
+                    <h3 class="text-2xl font-black text-dark-red">Tạo tài khoản mới</h3>
+                    <p class="text-xs text-gray-500 italic">Tham gia cộng đồng VocabAI ngay hôm nay.</p>
+                </div>
+
+                <form id="registerForm" class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Họ và tên</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" id="regName" placeholder="Nguyễn Văn A" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Email</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="email" id="regEmail" placeholder="email@vocab.ai" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Mật khẩu</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="password" id="regPass" placeholder="Tạo mật khẩu" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-dark-red uppercase tracking-widest ml-1">Nhập lại mật khẩu</label>
+                        <div class="relative">
+                            <i data-lucide="lock-keyhole" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="password" id="regConfirmPass" placeholder="Xác nhận mật khẩu" class="w-full pl-11 pr-4 py-3 bg-white border border-[#F2CE84] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9A0A13]" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitRegBtn" class="w-full btn-gradient py-3.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg mt-2">Đăng ký tài khoản</button>
+                </form>
+
+                <div class="form-divider">Hoặc đăng ký với</div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="handleSocialLogin('google')" class="social-btn flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-gray-700 text-xs font-bold shadow-sm">
+                        <i class="fab fa-google text-red-500 text-base"></i> Google
+                    </button>
+                    <button onclick="handleSocialLogin('facebook')" class="social-btn flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-gray-700 text-xs font-bold shadow-sm">
+                        <i class="fab fa-facebook text-blue-600 text-base"></i> Facebook
+                    </button>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-xs text-gray-500 font-medium">Đã có tài khoản? <span onclick="switchToLogin()" class="auth-switch-link">Đăng nhập ngay</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signInAnonymously, 
+            createUserWithEmailAndPassword, 
+            updateProfile,
+            GoogleAuthProvider,
+            FacebookAuthProvider,
+            signInWithPopup,
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyQqhC6OjT80nHbn_JoJ1hoJB6Q9hNcB0",
+            authDomain: "vocabai-1ef9e.firebaseapp.com",
+            projectId: "vocabai-1ef9e",
+            storageBucket: "vocabai-1ef9e.firebasestorage.app",
+            messagingSenderId: "632372450977",
+            appId: "1:632372450977:web:b0723cb4f45a75e69002e0"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vocabai-default';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- FETCH AND DISPLAY FEEDBACK (Fixed Logic) ---
+        const feedbackContainer = document.getElementById('testimonialContainer');
+
+        // Define loadFeedbacks as a function that takes a user parameter
+        const loadFeedbacks = (user) => {
+             // Chỉ gọi Firestore khi có user (kể cả user ẩn danh)
+             if (!user) return;
+
+             // BỘ LỌC DUYỆT BÀI: Chỉ lấy những bài có status == "approved"
+             const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'feedbacks'), where("status", "==", "approved"));
+             
+             // Setup listener
+             onSnapshot(q, (snapshot) => {
+                 const feedbacks = [];
+                 snapshot.forEach(doc => {
+                     feedbacks.push({ id: doc.id, ...doc.data() });
+                 });
+                 
+                 // Sort by createdAt desc in memory
+                 feedbacks.sort((a, b) => {
+                     const tA = a.createdAt?.seconds || 0;
+                     const tB = b.createdAt?.seconds || 0;
+                     return tB - tA;
+                 });
+                 
+                 // Take top 6
+                 const displayFeedbacks = feedbacks.slice(0, 6);
+                 
+                 if(displayFeedbacks.length === 0) {
+                     feedbackContainer.innerHTML = '<div class="col-span-3 text-center text-white/50 text-sm italic">Chưa có feedback nào được duyệt.</div>';
+                     return;
+                 }
+                 
+                 feedbackContainer.innerHTML = '';
+                 
+                 displayFeedbacks.forEach(fb => {
+                     // Generate stars HTML
+                     let starsHtml = '';
+                     for(let i=0; i<5; i++) {
+                         if(i < (fb.rating || 5)) starsHtml += '<i data-lucide="star" class="w-4 h-4 fill-current"></i>';
+                         else starsHtml += '<i data-lucide="star" class="w-4 h-4 text-white/30"></i>';
+                     }
+                     
+                     // Format Role & School
+                     let roleText = fb.role || "Người dùng";
+                     if((fb.role === 'Học sinh' || fb.role === 'Sinh viên') && fb.school) {
+                         roleText = `${fb.role} - ${fb.school}`;
+                     }
+                     
+                     const card = document.createElement('div');
+                     card.className = "bg-white/10 backdrop-blur-md p-8 rounded-[40px] border border-white/10 text-white space-y-4";
+                     card.innerHTML = `
+                        <div class="flex gap-1 text-[#F2CE84]">
+                            ${starsHtml}
+                        </div>
+                        <p class="italic text-sm opacity-90 leading-relaxed">"${fb.content || ''}"</p>
+                        <div class="flex items-center gap-4 pt-4 border-t border-white/10">
+                            <img src="${fb.userAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Default'}" class="w-12 h-12 rounded-full bg-white/20">
+                            <div>
+                                <p class="font-bold text-sm">${fb.userName || 'Ẩn danh'}</p>
+                                <p class="text-[10px] opacity-60">${roleText}</p>
+                            </div>
+                        </div>
+                     `;
+                     feedbackContainer.appendChild(card);
+                 });
+                 
+                 // Re-init icons for dynamic content
+                 if(window.lucide) window.lucide.createIcons();
+             }, (error) => {
+                 console.error("Lỗi khi tải feedback:", error);
+                 if (error.code === 'permission-denied') {
+                     feedbackContainer.innerHTML = '<div class="col-span-3 text-center text-white/50 text-sm italic">Lỗi quyền truy cập. Vui lòng kiểm tra Firestore Rules.</div>';
+                 }
+             });
+        };
+
+        // --- AUTH & INIT LOGIC ---
+        // Sử dụng onAuthStateChanged để đảm bảo chỉ load data khi auth state đã sẵn sàng
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User đã đăng nhập (bao gồm ẩn danh) -> Load data
+                loadFeedbacks(user);
+            } else {
+                // Chưa đăng nhập -> Đăng nhập ẩn danh
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Lỗi đăng nhập ẩn danh:", error);
+                });
+            }
+        });
+
+        window.showToast = function(msg) {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.className = "show";
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        }
+
+        // 1. Switch Forms
+        window.switchToRegister = function() {
+            document.getElementById('loginFormContainer').classList.add('hidden-form');
+            document.getElementById('registerFormContainer').classList.remove('hidden-form');
+            document.getElementById('registerFormContainer').classList.add('fade-in');
+            lucide.createIcons();
+        }
+
+        window.switchToLogin = function() {
+            document.getElementById('registerFormContainer').classList.add('hidden-form');
+            document.getElementById('loginFormContainer').classList.remove('hidden-form');
+            document.getElementById('loginFormContainer').classList.add('fade-in');
+            lucide.createIcons();
+        }
+
+        function startLoginTransition() {
+            const overlay = document.getElementById('transition-overlay');
+            overlay.classList.add('active');
+            setTimeout(() => {
+                window.location.href = "vocab_ai.html"; 
+            }, 1500);
+        }
+
+        // 2. Handle Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitLoginBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "ĐANG XỬ LÝ...";
+            
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value);
+                showToast("Đăng nhập thành công!");
+                setTimeout(() => { startLoginTransition(); }, 500);
+            } catch (error) {
+                console.error(error);
+                let msg = "Lỗi: Email hoặc mật khẩu không chính xác.";
+                if(error.code === 'auth/user-not-found') msg = "Tài khoản không tồn tại.";
+                if(error.code === 'auth/wrong-password') msg = "Mật khẩu không đúng.";
+                showToast(msg);
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
+        // 3. Handle Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPass').value;
+            const confirmPass = document.getElementById('regConfirmPass').value;
+            const btn = document.getElementById('submitRegBtn');
+
+            if (pass !== confirmPass) {
+                showToast("Mật khẩu xác nhận không khớp!");
+                return;
+            }
+
+            if (pass.length < 6) {
+                showToast("Mật khẩu phải có ít nhất 6 ký tự!");
+                return;
+            }
+
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "ĐANG TẠO...";
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+                await updateProfile(user, { displayName: name });
+                showToast("Đăng ký thành công! Vui lòng đăng nhập.");
+                switchToLogin();
+                document.getElementById('loginEmail').value = email;
+                document.getElementById('loginPass').value = ""; 
+                await auth.signOut(); 
+
+            } catch (error) {
+                console.error(error);
+                let msg = "Đăng ký thất bại.";
+                if (error.code === 'auth/email-already-in-use') msg = "Email này đã được sử dụng.";
+                if (error.code === 'auth/invalid-email') msg = "Email không hợp lệ.";
+                showToast(msg);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
+        // 4. Social Login Handler
+        window.handleSocialLogin = async (providerName) => {
+            let provider;
+            if (providerName === 'google') provider = new GoogleAuthProvider();
+            if (providerName === 'facebook') provider = new FacebookAuthProvider();
+
+            try {
+                showToast(`Đang kết nối với ${providerName === 'google' ? 'Google' : 'Facebook'}...`);
+                await signInWithPopup(auth, provider);
+                showToast("Đăng nhập thành công!");
+                setTimeout(() => { startLoginTransition(); }, 500);
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/unauthorized-domain') {
+                    showToast("Tính năng này chưa được kích hoạt trên hệ thống thử nghiệm.");
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    showToast("Đã hủy đăng nhập.");
+                } else {
+                    showToast("Lỗi đăng nhập: " + error.message);
+                }
+            }
+        }
+
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sendBtn = document.getElementById('sendMsgBtn');
+            const originalBtnContent = sendBtn.innerHTML;
+            
+            const params = {
+                name: document.getElementById('contactName').value,
+                phone: document.getElementById('contactPhone').value,
+                email: document.getElementById('contactEmail').value,
+                message: document.getElementById('contactMsg').value,
+            };
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = 'ĐANG GỬI...';
+
+            try {
+                await emailjs.send('service_uh0uaxt', 'template_dq3x0d7', params);
+                if (auth.currentUser) {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'contacts'), { 
+                        ...params, 
+                        createdAt: serverTimestamp() 
+                    });
+                }
+                showToast("Cảm ơn! Tin nhắn của bạn đã được gửi thành công.");
+                contactForm.reset();
+            } catch (error) {
+                showToast("Đã xảy ra lỗi khi gửi tin nhắn.");
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalBtnContent;
+                lucide.createIcons();
+            }
+        });
+
+        document.getElementById('ctaExperience')?.addEventListener('click', () => {
+             document.getElementById('openLoginBtn').click();
+        });
+
+        lucide.createIcons();
+    </script>
+
+    <script>
+        const translations = {
+            vi: {
+                nav_about: "Giới thiệu", nav_features: "Tính năng", nav_team: "Đội ngũ", nav_feedback: "Feedback", nav_experience: "Trải nghiệm",
+                btn_login: "ĐĂNG NHẬP", hero_badge: "Kỷ nguyên học tập mới",
+                hero_title_1: "Học từ vựng", hero_title_2: "Thông minh", hero_title_3: "hơn cùng AI.",
+                hero_desc: "VocabAI không chỉ là một từ điển. Đó là trợ lý học tập cá nhân giúp bạn tra cứu, ghi nhớ và làm chủ ngôn ngữ thông qua lộ trình được tối ưu hóa bởi trí tuệ nhân tạo.",
+                trusted_by: "Đã được tin dùng bởi hơn", retention_rate: "Tỉ lệ ghi nhớ",
+                about_title: "Tại sao chọn VocabAI?", about_desc: "Chúng tôi kết hợp phương pháp ghi nhớ khoa học (Spaced Repetition) với sức mạnh của Trí tuệ nhân tạo.",
+                about_item_1_title: "Tra cứu tức thì", about_item_1_desc: "Tìm kiếm từ vựng với đầy đủ phiên âm, ví dụ và ngữ cảnh chỉ trong một nốt nhạc.",
+                about_item_2_title: "Ghi nhớ bền vững", about_item_2_desc: "Hệ thống nhắc lại thông minh giúp bạn không bao giờ quên những gì đã học.",
+                about_item_3_title: "Cộng đồng sôi động", about_item_3_desc: "Chia sẻ bộ từ vựng và cùng nhau chinh phục các thử thách học tập hàng ngày.",
+                features_badge: "Hệ sinh thái", features_title: "Tính năng vượt trội",
+                features_desc: "Khám phá bộ công cụ mạnh mẽ được thiết kế để tối ưu hóa việc học ngôn ngữ của bạn mỗi ngày.",
+                feat_1_title: "AI Lookup", feat_1_desc: "Tra từ tự động bằng AI, gợi ý nghĩa sát thực tế và các cụm từ liên quan.",
+                feat_2_title: "Smart Library", feat_2_desc: "Quản lý kho từ vựng cá nhân theo chủ đề, đồng bộ hóa trên mọi thiết bị.",
+                feat_3_title: "Visual Stats", feat_3_desc: "Thống kê chi tiết tiến độ học tập qua biểu đồ nhiệt và hệ thống huy hiệu.",
+                feat_4_title: "Community", feat_4_desc: "Tham gia thảo luận, hỏi đáp AI và tham gia các nhóm học tập sôi động.",
+                exp_title: "Giao diện học tập trẻ trung & tinh tế", exp_desc: "Đăng ký tài khoản trải nghiệm để khám phá hệ thống dashboard cá nhân hóa, nơi mọi tiến trình học tập đều được AI ghi lại và tối ưu hóa theo cách riêng của bạn.",
+                btn_explore: "KHÁM PHÁ", team_title: "Đội ngũ sáng tạo",
+                feedback_title: "Feedback của người dùng", footer_brand_desc: "Nền tảng học tập thông minh dựa trên AI giúp tối ưu hóa việc tiếp thu kiến thức mới.",
+                footer_links_title: "Liên kết", contact_form_title: "Liên hệ với chúng tôi",
+                label_name: "Họ và tên", label_phone: "Số điện thoại", label_email: "Địa chỉ Email", label_msg: "Lời nhắn",
+                btn_send: "Gửi tin nhắn", placeholder_name: "Nguyễn Văn A", placeholder_phone: "0901 234 567",
+                placeholder_email: "email@vi-du.com", placeholder_msg: "Bạn cần hỗ trợ điều gì?",
+                login_welcome: "Chào mừng trở lại!", login_sub: "Đăng nhập để tiếp tục hành trình.",
+                btn_login_submit: "Đăng nhập ngay", label_email: "Email của bạn", label_pass: "Mật khẩu", forgot_pass: "Quên mật khẩu?", policy: "Chính sách bảo mật", terms: "Điều khoản sử dụng"
+            },
+            en: {
+                nav_about: "About", nav_features: "Features", nav_team: "Team", nav_feedback: "Feedback", nav_experience: "Experience",
+                btn_login: "LOGIN", hero_badge: "New Era of Learning",
+                hero_title_1: "Learn Vocabulary", hero_title_2: "Smarter", hero_title_3: "with AI.",
+                hero_desc: "VocabAI is not just a dictionary. It is a personal study assistant helping you master languages through AI-optimized paths.",
+                trusted_by: "Trusted by more than", retention_rate: "Retention Rate",
+                about_title: "Why VocabAI?", about_desc: "We combine Spaced Repetition methods with the power of Artificial Intelligence.",
+                about_item_1_title: "Instant Lookup", about_item_1_desc: "Search vocabulary with full IPA, examples, and context in a heartbeat.",
+                about_item_2_title: "Smart Memory", about_item_2_desc: "Intelligent system that ensures you never forget what you've learned.",
+                about_item_3_title: "Vibrant Community", about_item_3_desc: "Share vocab sets and conquer daily learning challenges together.",
+                features_badge: "Ecosystem", features_title: "Key Features",
+                features_desc: "Explore powerful tools designed to optimize your language learning journey.",
+                feat_1_title: "AI Lookup", feat_1_desc: "Automated lookup by AI, suggesting practical meanings and related phrases.",
+                feat_2_title: "Smart Library", feat_2_desc: "Manage personal vocab by topics, synced across all devices.",
+                feat_3_title: "Visual Stats", feat_3_desc: "Detailed statistics of learning progress via heatmaps and badges.",
+                feat_4_title: "Community", feat_4_desc: "Join discussions, ask AI questions, and participate in study groups.",
+                exp_title: "Youthful & Sophisticated Dashboard", exp_desc: "Register a trial account to explore a personalized dashboard system where every learning progress is recorded and optimized by AI just for you.",
+                btn_explore: "EXPLORE", team_title: "Creative Team",
+                feedback_title: "User Feedback", footer_brand_desc: "AI-driven smart learning platform designed to optimize knowledge acquisition.",
+                footer_links_title: "Quick Links", contact_form_title: "Contact Us",
+                label_name: "Full Name", label_phone: "Phone Number", label_email: "Email Address", label_msg: "Message",
+                btn_send: "Send Message", placeholder_name: "John Doe", placeholder_phone: "+1 234 567 890",
+                placeholder_email: "email@example.com", placeholder_msg: "How can we help you?",
+                login_welcome: "Welcome Back!", login_sub: "Login to continue your journey.",
+                btn_login_submit: "Login Now", label_email: "Your Email", label_pass: "Password", forgot_pass: "Forgot Password?", policy: "Privacy Policy", terms: "Terms of Use"
+            }
+        };
+
+        const featureDetails = {
+            lookup: {
+                vi: { title: "AI Lookup", desc: "Trải nghiệm tra từ vựng bằng AI siêu tốc, không chỉ là nghĩa từ mà còn là ngữ cảnh sử dụng thực tế.", img: "AI Lookup.png" },
+                en: { title: "AI Lookup", desc: "Experience ultra-fast AI-powered vocabulary lookup, providing real-world usage context.", img: "AI Lookup.png" }
+            },
+            library: {
+                vi: { title: "Smart Library", desc: "Kho lưu trữ từ vựng cá nhân thông minh. Phân loại theo chủ đề, mức độ ghi nhớ.", img: "Smart Library.png" },
+                en: { title: "Smart Library", desc: "Intelligent personal vocabulary storage. Categorize by topics and memory levels.", img: "Smart Library.png" }
+            },
+            stats: {
+                vi: { title: "Visual Stats", desc: "Theo dõi hành trình chinh phục ngôn ngữ của bạn thông qua các biểu đồ trực quan.", img: "Visual Stats.png" },
+                en: { title: "Visual Stats", desc: "Track your language conquest journey through visual charts measuring daily progress.", img: "Visual Stats.png" }
+            },
+            community: {
+                vi: { title: "Community", desc: "Kết nối với hàng ngàn người học khác. Chia sẻ bộ từ vựng, tham gia các thử thách nhóm.", img: "Community.png" },
+                en: { title: "Community", desc: "Connect with thousands of other learners. Share vocab sets and progress together.", img: "Community.png" }
+            }
+        };
+
+        window.showFeaturePreview = function(key) {
+            const lang = document.documentElement.lang || 'vi';
+            const detail = featureDetails[key][lang];
+            document.getElementById('featurePreviewImage').src = detail.img;
+            document.getElementById('featurePreviewTitle').textContent = detail.title;
+            document.getElementById('featurePreviewDesc').textContent = detail.desc;
+            document.getElementById('featureImageModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeFeaturePreview = function() {
+            document.getElementById('featureImageModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.changeLanguage = function(lang) {
+            document.documentElement.lang = lang;
+            const data = translations[lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (data[key]) el.textContent = data[key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (data[key]) el.placeholder = data[key];
+            });
+            document.getElementById('currentLangLabel').textContent = lang.toUpperCase();
+            document.getElementById('currentFlag').src = lang === 'vi' ? 'https://flagcdn.com/vn.svg' : 'https://flagcdn.com/us.svg';
+            document.getElementById('langMenu').classList.remove('show');
+        }
+
+        function toggleLoginModal(show) {
+            const modal = document.getElementById('loginModal');
+            modal.classList.toggle('hidden', !show);
+            document.body.style.overflow = show ? 'hidden' : 'auto';
+            if(show) {
+                // Always reset to login view when opening
+                switchToLogin();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            document.getElementById('langBtn').onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById('langMenu').classList.toggle('show');
+            };
+
+            document.getElementById('openLoginBtn').onclick = () => toggleLoginModal(true);
+            document.getElementById('closeLoginBtn').onclick = () => toggleLoginModal(false);
+
+            window.onclick = e => {
+                if (e.target.id === 'loginModal') toggleLoginModal(false); 
+                if (e.target.id === 'featureImageModal') closeFeaturePreview();
+                if (!e.target.closest('#langBtn')) document.getElementById('langMenu').classList.remove('show');
+            };
+
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('mainHeader');
+                if (window.scrollY > 50) {
+                    header.classList.add('shadow-xl');
+                    header.style.background = "rgba(113, 16, 0, 0.98)";
+                } else {
+                    header.classList.remove('shadow-xl');
+                    header.style.background = "rgba(113, 16, 0, 0.95)";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
